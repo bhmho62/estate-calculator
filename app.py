@@ -1,87 +1,153 @@
 import streamlit as st
 
-st.title("NTD 遺產分配計算器")
+st.set_page_config(
+    page_title="NTD 遺產分配計算器",
+    page_icon="💰",
+    layout="centered"
+)
 
-st.write("輸入 X, Y, Z, W（預設 W = 15,000,000）")
+st.title("💰 NTD 遺產分配計算器")
+
+st.write("請輸入各項資產金額")
 
 # =========================
 # Inputs
 # =========================
-X = st.number_input("X 金額", value=0.0)
-Y = st.number_input("Y 金額", value=0.0)
-Z = st.number_input("Z 金額", value=0.0)
-W = st.number_input("W 金額", value=15000000.0)
 
-total = X + Y + Z + W
-A = X + Y  # 用於 X+Y 的分配
-
-st.subheader("選擇分配方案")
-mode = st.radio(
-    "方案",
-    [
-        "方案 1（女生10% / 男生70%）",
-        "方案 2（女生20% + Z六等分 + W分配）"
-    ]
+二聖 = st.number_input(
+    "二聖 金額",
+    min_value=0.0,
+    value=0.0,
+    step=100000.0
 )
 
-st.write(f"總金額：{total:,.0f} NTD")
+股票 = st.number_input(
+    "股票 金額",
+    min_value=0.0,
+    value=0.0,
+    step=100000.0
+)
+
+現金 = st.number_input(
+    "現金 金額",
+    min_value=0.0,
+    value=0.0,
+    step=100000.0
+)
+
+永樂街 = st.number_input(
+    "永樂街 金額",
+    min_value=0.0,
+    value=15000000.0,
+    step=100000.0
+)
+
+total = 二聖 + 股票 + 現金 + 永樂街
+
+st.divider()
 
 # =========================
-# 方案 1
+# Mode Selection
 # =========================
-if mode == "方案 1（女生10% / 男生70%）":
 
-    girl = 0.10 * total
-    boy = (0.70 * total) / 2
+mode = st.radio(
+    "選擇分配方案",
+    (
+        "方案 1（女生10%，男生各35%）",
+        "方案 2（自訂分配）"
+    )
+)
 
-    st.subheader("結果")
+st.write(f"### 總資產：{total:,.0f} NTD")
 
-    st.write("👩 每個女生：")
+# =========================
+# Plan 1
+# =========================
+
+if mode == "方案 1（女生10%，男生各35%）":
+
+    girl = total * 0.10
+    boy = total * 0.35
+
+    st.subheader("分配結果")
+
+    st.write("👩 每位女生")
     st.success(f"{girl:,.0f} NTD")
 
-    st.write("👨 每個男生：")
+    st.write("👨 每位男生")
     st.success(f"{boy:,.0f} NTD")
 
 # =========================
-# 方案 2
+# Plan 2
 # =========================
+
 else:
 
-    # X + Y：女生20%
-    girl_xy = 0.20 * (X + Y)
+    # 二聖 + 股票
+    common_share = 0.20 * (二聖 + 股票)
 
-    # Z：六等分
-    girl_z = Z / 6
-    boy1_z = (2 * Z) / 6
-    boy2_z = Z / 6
+    # 現金
+    girl_cash = 現金 / 6
+    boy1_cash = (2 * 現金) / 6
+    boy2_cash = 現金 / 6
 
-    # W：男1 2/3, 男2 1/3
-    boy1_w = (2/3) * W
-    boy2_w = (1/3) * W
+    # 永樂街
+    boy1_house = (2 / 3) * 永樂街
+    boy2_house = (1 / 3) * 永樂街
 
-    # 最終合計
-    girl = girl_xy + girl_z
+    # Total
+    girl = common_share + girl_cash
 
-    boy1 = girl_xy + boy1_z + boy1_w
-    boy2 = girl_xy + boy2_z + boy2_w
+    boy1 = common_share + boy1_cash + boy1_house
+    boy2 = common_share + boy2_cash + boy2_house
 
-    st.subheader("結果")
+    st.subheader("分配結果")
 
-    st.write("👩 每個女生：")
+    st.write("👩 女1")
     st.success(f"{girl:,.0f} NTD")
 
-    st.write("👨 男1：")
+    st.write("👩 女2")
+    st.success(f"{girl:,.0f} NTD")
+
+    st.write("👩 女3")
+    st.success(f"{girl:,.0f} NTD")
+
+    st.write("👨 男1")
     st.success(f"{boy1:,.0f} NTD")
 
-    st.write("👨 男2：")
+    st.write("👨 男2")
     st.success(f"{boy2:,.0f} NTD")
 
-# =========================
-# Breakdown
-# =========================
-st.divider()
-st.subheader("拆解")
+    distributed_total = (
+        girl * 3 +
+        boy1 +
+        boy2
+    )
 
-st.write(f"X + Y = {X + Y:,.0f}")
-st.write(f"Z = {Z:,.0f}")
-st.write(f"W = {W:,.0f}")
+    st.divider()
+
+    st.write("### 驗算")
+
+    st.write(f"分配總額：{distributed_total:,.0f} NTD")
+    st.write(f"資產總額：{total:,.0f} NTD")
+
+    difference = total - distributed_total
+
+    if abs(difference) < 1:
+        st.success("✅ 分配總額與資產總額一致")
+    else:
+        st.error(f"❌ 差額：{difference:,.0f} NTD")
+
+# =========================
+# Asset Breakdown
+# =========================
+
+st.divider()
+
+st.subheader("資產明細")
+
+st.write(f"二聖：{二聖:,.0f} NTD")
+st.write(f"股票：{股票:,.0f} NTD")
+st.write(f"現金：{現金:,.0f} NTD")
+st.write(f"永樂街：{永樂街:,.0f} NTD")
+st.write(f"總資產：{total:,.0f} NTD")
