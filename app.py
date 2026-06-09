@@ -43,15 +43,20 @@ if mode == "方案 1（女生10% / 男生70%）":
 else:
 
     girl = 0.20 * A
-    boy = (0.40 * A + W) / 2
+
+    boy1 = 0.20 * A + (2/3) * W
+    boy2 = 0.20 * A + (1/3) * W
 
     st.subheader("結果")
 
     st.write("👩 每個女生（只算 X+Y+Z）：")
     st.success(f"{girl:,.0f} NTD")
 
-    st.write("👨 每個男生（含 W 分配）：")
-    st.success(f"{boy:,.0f} NTD")
+    st.write("👨 男1：")
+    st.success(f"{boy1:,.0f} NTD")
+
+    st.write("👨 男2：")
+    st.success(f"{boy2:,.0f} NTD")
 
 # =========================
 # Breakdown
